@@ -1,0 +1,59 @@
+CREATE TABLE IF NOT EXISTS "role"(
+    "id" SERIAL, 
+    "name" TEXT NOT NULL, 
+    "info" TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "client"(
+    "id" SERIAL, 
+    "name" TEXT NOT NULL, 
+    "info" TEXT NOT NULL DEFAULT '', 
+    "created" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "user"(
+  "id" SERIAL,
+  "client_id" INTEGER NOT NULL,
+  "role_id" INTEGER NOT NULL,
+  "login" TEXT NOT NULL,
+  "name" TEXT NOT NULL DEFAULT '',
+  "active" BOOLEAN NOT NULL DEFAULT TRUE,
+  "updated" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "by_user_id" INTEGER NOT NULL DEFAULT -1,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "FK_user" FOREIGN KEY ("by_user_id") REFERENCES "user"("id") ON DELETE SET DEFAULT,
+  CONSTRAINT "FK_client" FOREIGN KEY ("client_id") REFERENCES "client"("id") ON DELETE CASCADE,
+  CONSTRAINT "FK_role" FOREIGN KEY ("role_id") REFERENCES "role"("id") ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS "project" (
+  "id" SERIAL,
+  "client_id" INTEGER NOT NULL,
+  "name" TEXT NOT NULL,
+  "info" TEXT NOT NULL DEFAULT '',
+  "cell_size" INTEGER NOT NULL DEFAULT 100,
+  "cell_area" FLOAT NOT NULL,
+  "cell_count" INTEGER NOT NULL DEFAULT 0,
+  "zone_size" INTEGER NOT NULL DEFAULT 1000,
+  "zone_area" FLOAT NOT NULL,
+  "zone_count" INTEGER NOT NULL DEFAULT 0,
+  "created" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "by_user_id" INTEGER NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "FK_user" FOREIGN KEY ("by_user_id") REFERENCES "user"("id") ON DELETE CASCADE,
+  CONSTRAINT "FK_client" FOREIGN KEY ("client_id") REFERENCES "client"("id") ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS "scenario"(
+  "id" SERIAL,
+  "project_id" INTEGER NOT NULL,
+  "name" TEXT NOT NULL,
+  "info" TEXT NOT NULL DEFAULT '',
+  "created" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "by_user_id" INTEGER NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "FK_user" FOREIGN KEY ("by_user_id") REFERENCES "user"("id") ON DELETE SET -1,
+  CONSTRAINT "FK_project" FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE
+);
